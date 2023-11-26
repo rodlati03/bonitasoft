@@ -1,0 +1,69 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bonita-depl
+  namespace: bonita-ns
+  labels:
+    app: bonita
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bonita
+  template:
+    metadata:
+      labels:
+        app: bonita
+    spec:
+      containers:
+        - name: bonita
+          image: bonita
+          ports:
+            - containerPort: 8080
+          env:
+            - name: TENANT_LOGIN
+              valueFrom:
+                secretKeyRef:
+                  name: bonita-secret
+                  key: bonita-login
+            - name: TENANT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: bonita-secret
+                  key: bonita-password
+            - name: PLATFORM_LOGIN
+              valueFrom:
+                secretKeyRef:
+                  name: bonita-secret
+                  key: platforme-login
+            - name: PLATFORM_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: bonita-secret
+                  key: platforme-password
+            - name: DB_VENDOR
+              value: postgres
+            - name: DB_NAME
+              value: bonita
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: db-configmap
+                  key: db-host
+            - name: DB_PORT
+              value: "5432"
+            - name: BIZ_DB_NAME
+              value: business_data
+            - name: BIZ_DB_USER
+              value: business_data
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: db-user
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: db-password
