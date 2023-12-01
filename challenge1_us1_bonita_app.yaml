@@ -1,3 +1,20 @@
+#-------- secret -------
+# bonita-password ==> bonita_password
+# bonita-user ==> bonita_user
+# PLATFORM_LOGIN=pfadmin
+#PLATFORM_PASSWORD=pfsecret
+apiVersion: v1
+kind: Secret
+metadata:
+  name: bonita-secret
+  namespace: bonita-ns
+type: Opaque
+data:
+  bonita-login: Ym9uaXRhX3VzZXI=
+  bonita-password: Ym9uaXRhX3Bhc3N3b3Jk
+  platforme-login: cGZhZG1pbg==
+  platforme-password: cGZzZWNyZXQ=
+  
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -18,7 +35,7 @@ spec:
     spec:
       containers:
         - name: bonita
-          image: bonita
+          image: bonita:8.0.0
           ports:
             - containerPort: 8080
           env:
@@ -53,10 +70,6 @@ spec:
                   key: db-host
             - name: DB_PORT
               value: "5432"
-            - name: BIZ_DB_NAME
-              value: business_data
-            - name: BIZ_DB_USER
-              value: business_data
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
@@ -67,3 +80,37 @@ spec:
                 secretKeyRef:
                   name: db-secret
                   key: db-password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bonita-svc
+  namespace: bonita-ns
+spec:
+  type: NodePort
+  selector:
+    app: bonita
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30300
+---        
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bonita-ingress
+  namespace: bonita-ns
+  annotations:
+spec:
+  rules:
+    - host: bonita.grenoble
+      http:
+        paths:
+          - path: /bonita/
+            pathType: Prefix
+            backend:
+              service:
+                name: bonita-svc
+                port:
+                  number: 8080

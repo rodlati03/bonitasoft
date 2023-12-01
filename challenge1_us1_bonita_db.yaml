@@ -1,3 +1,26 @@
+#-------- secret -------
+# db-password ==> dbpassword
+# db-user ==> bonita
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-secret
+  namespace: bonita-ns
+type: Opaque
+data:
+  db-user: "Ym9uaXRhCg=="
+  db-password: "ZGJwYXNzd29yZAo="
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-configmap
+  namespace: bonita-ns
+data:
+  db-host: db-svc
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -26,3 +49,16 @@ spec:
             secretKeyRef:
               name: db-secret
               key:  db-password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-svc
+  namespace: bonita-ns
+spec:
+  selector:
+    app: postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
