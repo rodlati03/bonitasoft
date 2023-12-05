@@ -7,7 +7,7 @@ this is a repo after being challenged
   - JENKINS_URL
   - TOKEN_NAME
 
-# launch start_job_periodically.sh with arg "JOB_NAME"
+# launch start_job_periodically.sh with arg "JOB_NAME". In my case, I am using a cron
 ## ./start_job_periodically.sh JOB_NAME
 
 # launch list_all_running_job_on_jenkins.sh
