@@ -1,8 +1,9 @@
 #-------- secret -------
-# bonita-password ==> bonita_password
-# bonita-user ==> bonita_user
+# bonita-password ==> bpm
+# bonita-user ==> bonita
 # PLATFORM_LOGIN=pfadmin
-#PLATFORM_PASSWORD=pfsecret
+#PLATFORM_PASSWORD=pfpassword
+#biz-db-user ==> business_data
 apiVersion: v1
 kind: Secret
 metadata:
@@ -10,11 +11,10 @@ metadata:
   namespace: bonita-ns
 type: Opaque
 data:
-  bonita-login: Ym9uaXRhX3VzZXI=
-  bonita-password: Ym9uaXRhX3Bhc3N3b3Jk
-  platforme-login: cGZhZG1pbg==
-  platforme-password: cGZzZWNyZXQ=
-  
+  tlogin: cGZhZG1pbg==
+  tpassword: cGZwYXNzd29yZA==
+
+#-------- deployment -------
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -35,7 +35,7 @@ spec:
     spec:
       containers:
         - name: bonita
-          image: bonita:8.0.0
+          image: bonita
           ports:
             - containerPort: 8080
           env:
@@ -43,22 +43,22 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: bonita-secret
-                  key: bonita-login
+                  key: tlogin
             - name: TENANT_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: bonita-secret
-                  key: bonita-password
+                  key: tpassword
             - name: PLATFORM_LOGIN
               valueFrom:
                 secretKeyRef:
                   name: bonita-secret
-                  key: platforme-login
+                  key: tlogin
             - name: PLATFORM_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: bonita-secret
-                  key: platforme-password
+                  key: tpassword
             - name: DB_VENDOR
               value: postgres
             - name: DB_NAME
@@ -80,6 +80,21 @@ spec:
                 secretKeyRef:
                   name: db-secret
                   key: db-password
+            - name: BIZ_DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: biz-db-user
+            - name: BIZ_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: biz-db-user
+            - name: BIZ_DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: biz-db-pass
 ---
 apiVersion: v1
 kind: Service
@@ -95,7 +110,7 @@ spec:
       port: 8080
       targetPort: 8080
       nodePort: 30300
----        
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:

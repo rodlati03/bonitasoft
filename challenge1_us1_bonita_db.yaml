@@ -1,3 +1,10 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bonita-ns
+  labels:
+    name: bonitasoft
+
 #-------- secret -------
 # db-password ==> dbpassword
 # db-user ==> bonita
@@ -8,8 +15,10 @@ metadata:
   namespace: bonita-ns
 type: Opaque
 data:
-  db-user: "Ym9uaXRhCg=="
-  db-password: "ZGJwYXNzd29yZAo="
+  db-user: Ym9uaXRh
+  db-password: YnBt
+  biz-db-user: YnVzaW5lc3NfZGF0YQ==
+  biz-db-pass: YnBt
 
 ---
 apiVersion: v1
@@ -40,7 +49,7 @@ spec:
     spec:
       containers:
       - name: postgres
-        image: bonitasoft/bonita-postgres:12.6
+        image: bonitasoft/bonita-postgres:15.3
         ports:
         - containerPort: 5432
         env:
